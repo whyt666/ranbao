@@ -10,7 +10,7 @@ import (
 
 func (h *Handler) SendCode(ctx *gin.Context) {
 	type SendCode struct {
-		Mail string `json:"mail"`
+		Mail string `json:"mail" form:"mail"`
 	}
 	var form SendCode
 	if err := ctx.Bind(&form); err != nil {
@@ -36,8 +36,8 @@ func (h *Handler) SendCode(ctx *gin.Context) {
 
 func (h *Handler) Verify(ctx *gin.Context) {
 	type SendCode struct {
-		Mail string `json:"mail"`
-		Code string `json:"code"`
+		Mail string `form:"mail"`
+		Code string `form:"code"`
 	}
 	var form SendCode
 	if err := ctx.Bind(&form); err != nil {
@@ -50,7 +50,7 @@ func (h *Handler) Verify(ctx *gin.Context) {
 	err := h.MailService.Verify(context1, form.Mail, form.Code)
 	if err != nil {
 		ctx.JSON(http.StatusOK, pkg.Result{
-			Msg:  "",
+			Msg:  "出现错误",
 			Data: err,
 		})
 		return

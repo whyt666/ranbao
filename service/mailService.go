@@ -26,7 +26,7 @@ type MailService struct {
 const (
 	QQMailSMTPCode = "muxammcfejavebei"
 	QQMailSender   = "@qq.com"
-	QQMailTitle    = "验证"
+	QQMailTitle    = "验证码"
 	SMTPAdr        = "smtp.qq.com"
 	SMTPPort       = 25
 	MailListSize   = 2048
@@ -57,6 +57,7 @@ func (s *MailService) SendMail(ctx context.Context, mail string) error {
         </div>
         <div style="padding: 8px 40px 8px 50px;">
             <p>您的验证码为: %s </p>
+			<p>验证码有效期为3分钟左右，请尽快使用!!!</p>
         </div>
         <div>
             <p>此邮箱为系统邮箱，请勿回复。</p>
@@ -85,6 +86,7 @@ func (s *MailService) Verify(ctx context.Context, mail string, code string) erro
 	//先查询
 	res, err := cache.CacheMailCtl.Get(ctx, mail)
 	if err != nil {
+		zap.S().Info(err)
 		return err
 	}
 	//后对比

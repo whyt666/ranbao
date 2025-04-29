@@ -24,8 +24,8 @@ func NewHandler() *Handler {
 
 func InitRouter() *gin.Engine {
 	r := gin.Default()
-	//发送邮箱验证码
 
+	r.Use(middleware.FormLogger())
 	UserRouter := r.Group("/user")
 	handler := NewHandler()
 
@@ -39,7 +39,7 @@ func InitRouter() *gin.Engine {
 	mailRouter := r.Group("/mail")
 	{
 		mailRouter.POST("/sendCode", handler.SendCode)
-		mailRouter.GET("/Verify", handler.Verify)
+		mailRouter.POST("/verify", handler.Verify)
 	}
 	return r
 }

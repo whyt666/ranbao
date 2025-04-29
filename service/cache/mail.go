@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"ranbao/global"
 	"time"
 )
@@ -19,7 +20,7 @@ type CacheMail struct {
 }
 
 func (c *CacheMail) Set(ctx context.Context, mail string, value any) error {
-	err := global.Rdb.Set(ctx, c.key+":"+mail, value, 3*time.Second).Err()
+	_, err := global.Rdb.Set(ctx, c.key+":"+mail, value, 30*time.Minute).Result()
 	if err != nil {
 		return err
 	}
@@ -28,8 +29,9 @@ func (c *CacheMail) Set(ctx context.Context, mail string, value any) error {
 
 func (c *CacheMail) Get(ctx context.Context, mail string) (any, error) {
 	res, err := global.Rdb.Get(ctx, c.key+":"+mail).Result()
+	zap.S().Info(c.key + ":" + mail)
 	if err != nil {
-		return "", err
+		return res, err
 	}
 	return res, nil
 }
