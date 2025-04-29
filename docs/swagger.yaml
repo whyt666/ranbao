@@ -1,0 +1,124 @@
+definitions:
+  pkg.Result:
+    properties:
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名和密码登录
+      parameters:
+      - description: 用户名
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功返回token
+          schema:
+            allOf:
+            - $ref: '#/definitions/pkg.Result'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "401":
+          description: 登录失败
+          schema:
+            $ref: '#/definitions/pkg.Result'
+      summary: 用户登录
+      tags:
+      - 用户
+  /user/loginEmail:
+    post:
+      consumes:
+      - application/json
+      description: 使用邮箱和验证码登录或注册
+      parameters:
+      - description: 邮箱
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: 验证码
+        in: formData
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "401":
+          description: 验证码错误
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "409":
+          description: 用户已存在
+          schema:
+            $ref: '#/definitions/pkg.Result'
+      summary: 邮箱登录/注册
+      tags:
+      - 用户
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名和密码注册
+      parameters:
+      - description: 用户名
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/pkg.Result'
+        "409":
+          description: 用户已存在
+          schema:
+            $ref: '#/definitions/pkg.Result'
+      summary: 用户注册
+      tags:
+      - 用户
+swagger: "2.0"
