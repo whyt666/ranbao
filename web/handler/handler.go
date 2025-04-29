@@ -2,8 +2,9 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"ranbao/pkg"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "ranbao/docs"
 	"ranbao/service"
 	"ranbao/web/middleware"
 )
@@ -26,11 +27,15 @@ func InitRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(middleware.FormLogger())
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	UserRouter := r.Group("/user")
 	handler := NewHandler()
 
 	{
+
 		UserRouter.POST("/login", handler.Login)
+		UserRouter.POST("/loginEmail", handler.LoginEmail)
 		UserRouter.POST("/register", handler.Register)
 		UserRouter.Use(middleware.JWTAuth()).POST("/ForgetPwd", func(context *gin.Context) {
 
@@ -38,32 +43,9 @@ func InitRouter() *gin.Engine {
 	}
 	mailRouter := r.Group("/mail")
 	{
+
 		mailRouter.POST("/sendCode", handler.SendCode)
 		mailRouter.POST("/verify", handler.Verify)
 	}
 	return r
-}
-
-func (u *Handler) Register(ctx *gin.Context) {
-	type RegisterForm struct {
-		Name     string `form:"name" binding:"required"`
-		Password string `form:"password" binding:"required"`
-	}
-	var form RegisterForm
-	if err := ctx.Bind(&form); err != nil {
-		return
-	}
-
-	err := u.UserService.RegisterByPassword(form.Name, form.Password)
-	if err != nil {
-		ctx.JSON(http.StatusOK, pkg.Result{
-			Msg:  "注册失败",
-			Data: err,
-		})
-		return
-	}
-	ctx.JSON(http.StatusOK, pkg.Result{
-		Msg:  "注册成功",
-		Data: nil,
-	})
 }

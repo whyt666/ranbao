@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	MailSrvCtl   = &MailService{}
 	ErrCodeVaild = errors.New("验证码无效")
 )
 

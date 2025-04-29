@@ -17,6 +17,14 @@ func InsertUser(user model.User) error {
 	return global.Db.Model(&model.User{}).Create(&user).Error
 }
 
+func IsUserExistByEmail(email string) bool {
+	var user model.User
+	if tx := global.Db.Model(&model.User{}).Where("name = ?", email).First(&user); tx.RowsAffected == 0 {
+		return false
+	}
+	return true
+}
+
 func IsUserExistByName(name string) bool {
 	var user model.User
 	if tx := global.Db.Model(&model.User{}).Where("name = ?", name).First(&user); tx.RowsAffected == 0 {

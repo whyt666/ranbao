@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"ranbao/service/dao"
 	"ranbao/service/model"
+	"strings"
 )
 
 var (
@@ -15,10 +17,35 @@ var (
 
 type IUserService interface {
 	RegisterByPassword(name string, password string) error
+	RegisterByEmail(email string, code string) error
 	LoginByPassword(name string, password string) (model.User, error)
 }
 
 type UserService struct {
+}
+
+func (u *UserService) RegisterByEmail(email string, code string) error {
+
+	//查询是否已注册
+	if ok := dao.IsUserExistByEmail(email); ok {
+		return UserRegistered
+	}
+	//校验验证码是否正确
+	err := MailSrvCtl.Verify(context.Background(), email, code)
+	if err != nil {
+		return ErrCodeVaild
+	}
+
+	user := model.User{
+		Name:  "用户" + strings.Split(email, "@")[0],
+		Email: email,
+	}
+
+	err = dao.InsertUser(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *UserService) RegisterByPassword(name string, password string) error {
