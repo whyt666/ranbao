@@ -1,6 +1,7 @@
 package ini
 
 import (
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"ranbao/global"
@@ -12,7 +13,7 @@ func InitDB() {
 		DSN string `yaml:"dsn"`
 	}
 	c := Config{
-		DSN: "root:1520226681wW@tcp(127.0.0.1:3306)/ranbao?charset=utf8mb4&parseTime=True&loc=Local",
+		DSN: fmt.Sprintf("root:1520226681wW@tcp(127.0.0.1:%s)/ranbao?charset=utf8mb4&parseTime=True&loc=Local", Conf.MysqlConfig.Port),
 	}
 
 	db, err := gorm.Open(mysql.Open(c.DSN), &gorm.Config{})

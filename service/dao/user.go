@@ -33,6 +33,15 @@ func IsUserExistByName(name string) bool {
 	return true
 }
 
+func FindUserByEmail(email string) (model.User, error) {
+	var user model.User
+	err := global.Db.Model(&model.User{}).Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 func FindUserById(userId int64) (model.User, error) {
 	var user model.User
 	err := global.Db.Model(&model.User{}).Where("id = ?", userId).First(&user).Error

@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=1520226681wW
+      - MYSQL_DATABASE=ranbao
+    ports:
+      - "13306:3306"
+    volumes:
+      - d:/mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

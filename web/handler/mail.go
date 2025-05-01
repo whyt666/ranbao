@@ -10,7 +10,7 @@ import (
 
 func (h *Handler) SendCode(ctx *gin.Context) {
 	type SendCode struct {
-		Mail string `json:"mail" form:"mail"`
+		Mail string `json:"mail" binding:"required"`
 	}
 	var form SendCode
 	if err := ctx.Bind(&form); err != nil {
@@ -36,8 +36,8 @@ func (h *Handler) SendCode(ctx *gin.Context) {
 
 func (h *Handler) Verify(ctx *gin.Context) {
 	type SendCode struct {
-		Mail string `form:"mail"`
-		Code string `form:"code"`
+		Mail string `json:"mail" binding:"required"`
+		Code string `json:"code" binding:"required"`
 	}
 	var form SendCode
 	if err := ctx.Bind(&form); err != nil {

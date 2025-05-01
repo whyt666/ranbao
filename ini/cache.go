@@ -9,7 +9,7 @@ import (
 
 func InitRDB() {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
+		Addr: fmt.Sprintf("127.0.0.1:%s", Conf.RedisConfig.Port),
 	})
 	fmt.Println(rdb)
 	err := rdb.Ping(context.Background()).Err()

@@ -17,35 +17,41 @@ var (
 
 type IUserService interface {
 	RegisterByPassword(name string, password string) error
-	RegisterByEmail(email string, code string) error
+	LoginByEmail(email string, code string) (model.User, error)
 	LoginByPassword(name string, password string) (model.User, error)
 }
 
 type UserService struct {
 }
 
-func (u *UserService) RegisterByEmail(email string, code string) error {
+func (u *UserService) LoginByEmail(email string, code string) (model.User, error) {
 
-	//查询是否已注册
-	if ok := dao.IsUserExistByEmail(email); ok {
-		return UserRegistered
-	}
 	//校验验证码是否正确
 	err := MailSrvCtl.Verify(context.Background(), email, code)
 	if err != nil {
-		return ErrCodeVaild
+		return model.User{}, ErrCodeVaild
+	}
+	//查询是否已注册
+	if ok := dao.IsUserExistByEmail(email); ok {
+		//已注册过且验证码正确，直接登录
+		user, err1 := dao.FindUserByEmail(email)
+		if err1 != nil {
+			return model.User{}, err
+		}
+		return user, nil
+	} else {
+		user := model.User{
+			Name:  "用户" + strings.Split(email, "@")[0],
+			Email: email,
+		}
+
+		err = dao.InsertUser(user)
+		if err != nil {
+			return model.User{}, err
+		}
+		return user, nil
 	}
 
-	user := model.User{
-		Name:  "用户" + strings.Split(email, "@")[0],
-		Email: email,
-	}
-
-	err = dao.InsertUser(user)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (u *UserService) RegisterByPassword(name string, password string) error {

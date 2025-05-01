@@ -23,8 +23,8 @@ import (
 // @Router /user/login [post]
 func (u *Handler) Login(ctx *gin.Context) {
 	type LoginForm struct {
-		Name     string `form:"name" binding:"required"`
-		Password string `form:"password" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		Password string `json:"password" binding:"required"`
 	}
 	var form LoginForm
 	if err := ctx.Bind(&form); err != nil {
@@ -79,8 +79,8 @@ func (u *Handler) Login(ctx *gin.Context) {
 // @Router /user/register [post]
 func (u *Handler) Register(ctx *gin.Context) {
 	type RegisterForm struct {
-		Name     string `form:"name" binding:"required"`
-		Password string `form:"password" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		Password string `json:"password" binding:"required"`
 	}
 	var form RegisterForm
 	if err := ctx.Bind(&form); err != nil {
@@ -116,24 +116,45 @@ func (u *Handler) Register(ctx *gin.Context) {
 // @Router /user/loginEmail [post]
 func (u *Handler) LoginEmail(ctx *gin.Context) {
 	type RegisterForm struct {
-		Email string `form:"email" binding:"required"`
-		Code  string `form:"code" binding:"required"`
+		Email string `json:"email" binding:"required"`
+		Code  string `json:"code" binding:"required"`
 	}
 	var form RegisterForm
 	if err := ctx.Bind(&form); err != nil {
 		return
 	}
 
-	err := u.UserService.RegisterByEmail(form.Email, form.Code)
+	user, err := u.UserService.LoginByEmail(form.Email, form.Code)
 	if err != nil {
 		ctx.JSON(http.StatusOK, pkg.Result{
-			Msg:  "注册失败",
+			Msg:  "登录失败",
 			Data: err,
 		})
 		return
 	}
+
+	//发放token
+	token, err := middleware.NewJWT().CreateToken(middleware.CustomClaims{
+		ID:       user.ID,
+		NickName: user.Name,
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix(),
+			ExpiresAt: time.Now().Unix() + 60*60*24*30, //30天过期
+			Issuer:    "why",
+		},
+	})
+	if err != nil {
+		ctx.JSON(http.StatusOK, pkg.Result{
+			Msg:  "发放token失败",
+			Data: err,
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, pkg.Result{
-		Msg:  "注册成功",
-		Data: nil,
+		Msg: "登录成功",
+		Data: map[string]string{
+			"token": token,
+		},
 	})
 }
